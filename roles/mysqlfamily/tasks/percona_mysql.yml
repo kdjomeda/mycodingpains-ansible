@@ -1,0 +1,19 @@
+---
+- name: Setting up percona server apt-key
+  apt_key:
+    url=http://www.percona.com/downloads/RPM-GPG-KEY-percona
+    state=present
+
+- name: Setting up percona Repository
+  apt_repository: repo="deb http://repo.percona.com/apt {{ ansible_distribution_release }} main" state=present
+
+- name: Installing Percona Server
+  apt:
+    name=percona-server-server-{{ mysqlfamily_percona_server_version|default("5.6") }}
+  when: mysqlfamily_percona_server_enable|default(false)
+
+
+- name: Installing Percona Client
+  apt:
+    name=percona-server-client-{{ mysqlfamily_percona_client_version|default("5.6") }}
+  when: mysqlfamily_percona_client_enable|default(false)

@@ -1,0 +1,18 @@
+---
+- name: Installing Oracle Mysql Server
+  apt:
+    name=mysql-server-{{ mysqlfamily_oracle_version|default("5.6")}}
+    update_cache=yes
+    state=present
+  when: mysqlfamily_oracle_server_enable|default(false)
+
+
+- name: Installing Oracle Mysql Client
+  apt:
+    name=mysql-client-{{ mysqlfamily_oracle_version|default("5.6")}}
+    update_cache=yes
+    state=present
+  when: mysqlfamily_oracle_client_enable|default(false)
+
+- include: common.yml
+  when: mysqlfamily_oracle_server_enable|default(false)

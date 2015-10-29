@@ -1,0 +1,26 @@
+---
+- name: Adding GPG Keys for mariadb
+  apt_key:
+    id=0xcbcb082a1bb943db
+    keyserver=keyserver.ubuntu.com
+    state=present
+  when: ansible_distribution_release == 'precise'
+
+- name: Adding Source file for mariab db
+  apt_repository: repo="deb http://mariadb.nethub.com.hk//repo/{{ mysqlfamily_mariadb_server_version|default("5.5") }}/ubuntu precise main" state=present
+  when: ansible_distribution_release == 'precise'
+
+
+- name: Installing Mariabdb Server
+  apt:
+    name=mariadb-server
+    update_cache=yes
+    state=present
+  when: mysqlfamily_mariadb_server_enable|default(false)
+
+- name: Installing Mariabdb Client
+  apt:
+    name=mariadb-client
+    update_cache=yes
+    state=present
+  when: mysqlfamily_mariadb_client_enable|default(false)

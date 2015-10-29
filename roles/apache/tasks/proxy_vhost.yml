@@ -1,0 +1,9 @@
+---
+
+- name: Creating a Reverse Proxy virtualhost file
+  template:
+    src=http_vhost_reverse_proxy.conf.j2
+    dest=/etc/apache2/sites-available/{{ item }}.conf
+    mode=0644
+    # validate=apache2ctl -f %s -t
+  with_items: webserver_apache_proxy_vhost_list|default()

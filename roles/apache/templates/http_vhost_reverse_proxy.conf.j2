@@ -1,0 +1,34 @@
+
+<VirtualHost *:{{ apache_port }}>
+
+        ProxyRequests off    
+        ProxyPreserveHost On
+
+        ServerAdmin {{ apache_admin_email_address }}
+        ServerName {{ apache_domain_name }}
+        {% if apache_domain_aliases is defined %}
+            {% for serveralias in apache_domain_aliases %}
+                ServerAlias {{ serveralias }}
+            {% endfor %}
+        {% endif %}
+        
+        {% if apache_vhosts is defined %}
+
+            {% for vhost in apache_vhosts %}
+
+               ProxyPass {{ vhost.apache_proxy_context }} {{ vhost.reversed_server_mod }}://{{ vhost.reversed_server_ip }}:{{ vhost.reversed_server_port }}{{ vhost.reversed_server_context }}
+               ProxyPassReverse {{ vhost.apache_proxy_context }} {{ vhost.reversed_server_mod }}://{{ vhost.reversed_server_ip }}:{{ vhost.reversed_server_port }}{{ vhost.reversed_server_context }}
+
+            {% endfor %}
+        {% endif %}
+
+        ErrorLog ${APACHE_LOG_DIR}/{{ apache_domain_name }}_error.log
+
+        # Possible values include: debug, info, notice, warn, error, crit,
+        # alert, emerg.
+        LogLevel {{ apache_log_level|default('warn') }}
+
+        CustomLog ${APACHE_LOG_DIR}/{{ apache_domain_name }}_access.log combined
+
+
+</VirtualHost>

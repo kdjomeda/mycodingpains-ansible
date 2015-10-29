@@ -1,0 +1,10 @@
+---
+# handlers file for mysqlfamily
+- name: start_mysql
+  service: name=mysql state=started
+
+- name: stop_mysql
+  service: name=mysql state=stopped
+
+- name: restart_mysql
+  service: name=mysql state=restarted

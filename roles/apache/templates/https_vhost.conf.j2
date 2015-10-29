@@ -1,0 +1,27 @@
+<VirtualHost *:{{ apache_ssl_port }}>
+        ServerAdmin {{ apache_admin_email_address }}
+        ServerName {{ apache_domain_name }}
+        
+        DocumentRoot /var/www/vhosts{{ apache_domain_name}}/htdocs
+        <Directory /var/www/vhosts{{ apache_domain_name}}/htdocs>
+                Options Indexes FollowSymLinks MultiViews
+                AllowOverride None
+                Order allow,deny
+                allow from all
+        </Directory>
+        
+        SSLEngine On
+        SSLCertificateFile /srv/ssl/{{ apache_domain_name }}/{{ apache_domain_name }}.crt
+        SSLCertificateKeyFile  /srv/ssl/{{ apache_domain_name }}/{{ apache_domain_name }}.key
+        #SSLCertificateChainFile /srv/ssl/{{ apache_domain_name }}/{{ apache_domain_name }}CA.crt
+        
+        ErrorLog ${APACHE_LOG_DIR}/{{ apache_domain_name }}_error.log
+
+        # Possible values include: debug, info, notice, warn, error, crit,
+        # alert, emerg.
+        LogLevel {{ apache_log_level|default('warn') }}
+
+        CustomLog ${APACHE_LOG_DIR}/{{ apache_domain_name }}_access.log combined
+
+
+</VirtualHost>

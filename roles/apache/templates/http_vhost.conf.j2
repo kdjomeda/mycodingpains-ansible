@@ -1,0 +1,27 @@
+<VirtualHost *:{{ webserver_apache_port|default(80) }}>
+        ServerAdmin {{ webserver_apache_admin_email_address|default("admin@localhost") }}
+        ServerName {{ webserver_apache_document_vhost_domain|default("localhost") }}
+        {% if webserver_apache_domain_aliases is defined %}
+            {% for serveralias in apache_domain_aliases %}
+                ServerAlias {{ serveralias }}
+            {% endfor %}
+        {% endif %}
+        DocumentRoot /var/www/html/vhosts/{{ webserver_apache_document_vhost_domain|default("localhost") }}/htdocs
+        <Directory /var/www/html/vhosts/{{ webserver_apache_document_vhost_domain|default("localhost") }}/htdocs>
+                Options Indexes FollowSymLinks MultiViews
+                AllowOverride None
+                Order allow,deny
+                allow from all
+        </Directory>
+
+
+        ErrorLog ${APACHE_LOG_DIR}/{{ webserver_apache_document_vhost_domain|default("localhost") }}_error.log
+
+        # Possible values include: debug, info, notice, warn, error, crit,
+        # alert, emerg.
+        LogLevel {{ apache_log_level|default('warn') }}
+
+        CustomLog ${APACHE_LOG_DIR}/{{ webserver_apache_document_vhost_domain|default("localhost") }}_access.log combined
+
+
+</VirtualHost>

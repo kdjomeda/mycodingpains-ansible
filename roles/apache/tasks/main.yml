@@ -1,0 +1,58 @@
+---
+# Task that makes sure Apache2 lastest version is present
+- name: Install Apache2
+  apt:
+    name=apache2
+    state=present
+    update_cache=yes
+
+# Task that replaces default landing page of apache by an empty one
+# from roles/apache/template/index.html.j2
+
+- name: Hide content of default host file
+  template:
+    src=index.html.j2
+    dest=/var/www/html/index.html
+    mode=0755
+
+# Task that makes sure all apache modules that are passed
+# to task as a list will all be activated
+
+- name: Enable Apache Mods
+  apache2_module: state=present name={{ item }}
+  when: webserver_apache_activate_mods_list is defined
+  with_items: webserver_apache_activate_mods_list|default()
+  notify: Restart-Apache
+
+# Task that makes sure all apache modules that are passed
+# to task as a list will all be deactivated
+
+- name: Disabled Apache Mods
+  apache2_module: state=absent name={{ item }}
+  when: webserver_apache_deactivate_mods_list is defined
+  with_items: webserver_apache_deactivate_mods_list|default()
+  notify: Restart-Apache
+
+# Including tasks from the http_vhost file which take care of making sure
+# that normal http document virtualhost is configured
+
+- include: http_vhost.yml
+  when: webserver_apache_document_vhost_enable|default(False)
+
+# - include: proxy_vhost.yml
+#   when: webserver_apache_proxy_vhost_enable|default(False)
+
+
+- name: Enabling Virtualhosts
+  command: a2ensite {{ item }}
+  when: webserver_apache_virtualhost_enable_list is defined
+  with_items: webserver_apache_virtualhost_enable_list|default()
+
+
+- name: Desabling Virtualhosts
+  command: a2dissite {{ item }}
+  when: webserver_apache_virtualhost_disable_list is defined
+  with_items: webserver_apache_virtualhost_disable_list|default()
+
+- name: Restart Apache
+  service: name=apache2 state=restarted

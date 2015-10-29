@@ -1,0 +1,24 @@
+---
+# tasks file for php
+
+- include: regular_php.yml
+  when: php_regular_enable|default(true)
+
+- include: php_fpm.yml
+  when: php_fpm_enable|default(false)
+
+- name: Installing List of Php packages
+  apt:
+    name={{ item }}
+    update_cache=yes
+    state=present
+  with_items: php_install_packages_list|default()
+  when: php_install_packages_list is defined
+
+- name: Uninstalling List of Php packages
+  apt:
+    name={{ item }}
+    update_cache=yes
+    state=present
+  with_items: php_uninstall_packages_list|default()
+  when: php_uninstall_packages_list is defined

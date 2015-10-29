@@ -1,0 +1,13 @@
+---
+- name: Installing php-fpm package
+  apt:
+    name=php-fpm
+    update_cache=yes
+    state=present
+
+- name: Fixing CGI path Info
+  lineinfile:
+    dest=/etc/php5/fpm/php.ini
+    regexp="^;cgi\.fix_pathinfo=1"
+    insertafter="^;cgi\.fix_pathinfo=1"
+    line="cgi\.fix_pathinfo=0"

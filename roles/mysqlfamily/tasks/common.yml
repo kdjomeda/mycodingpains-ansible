@@ -1,0 +1,54 @@
+---
+- name: Installing Python Mysqldb modules
+  apt:
+    name=python-mysqldb
+    update_cache=yes
+    state=present
+
+- name: Uploading default Configuration File
+  template:
+    src=default.cnf.j2
+    dest=/etc/mysql/my.cnf
+    owner=root
+    group=root
+
+- name: Restarting Mysql Server
+  service: name=mysql state=restarted
+
+- name: Delete anonymous mysql user testing mysql authentication
+  mysql_user: name="" state=absent
+  register: command_result
+  ignore_errors: true
+
+
+- name: Installing Mysql Root user
+  mysql_user: name=root  host={{ item }}  password={{ mysql_root_password }}
+  when: command_result|success
+  with_items:
+  - "{{ ansible_hostname }}"
+  - 127.0.0.1
+  - ::1
+  - localhost
+
+
+- name: remove anonymous access
+  mysql_user: name="" host={{ item }} check_implicit_admin=yes state=absent login_user=root login_password={{ mysql_root_password }}
+  with_items:
+   - "{{ ansible_fqdn }}"
+   - 127.0.0.1
+   - "::1"
+   - localhost
+   - "%"
+
+- name: Remove test database
+  mysql_db: name=test state=absent login_user=root login_password={{ mysql_root_password }}
+
+- name: Creating Databases
+  mysql_db: name={{ item.db}} state=present login_user=root login_password={{ mysql_root_password }}
+  when: mysqlfamily_database_users_list is defined
+  with_items: mysqlfamily_database_users_list|default({})
+
+- name: Creating Users for Applications
+  mysql_user: name={{ item.user }} host={{ item.host }} priv={{ item.priv }} password={{ item.password }} login_user=root login_password={{ mysql_root_password }}
+  when: mysqlfamily_database_users_list is defined
+  with_items: mysqlfamily_database_users_list|default()

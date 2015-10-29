@@ -1,0 +1,147 @@
+---
+- hosts: wordpress_app
+  roles:
+  - php
+  - apache
+  - wordpress
+  sudo: true
+  vars:
+    webserver_apache_document_vhost_enable: true
+    # webserver_apache_document_vhost_domain: wordpress1.localhost
+    # webserver_apache_activate_vhost_list:
+    # - wordpress1.localhost
+    php_install_packages_list:
+    - php5
+    - libapache2-mod-php5
+    - php5-cli
+    - php5-mysql
+    - php5-curl
+    - php5-gd
+    - php5-mcrypt
+    wordpress_utilities_list:
+    - unzip
+    - tar
+    wordpress_package_url: https://wordpress.org/latest.zip
+    wordpress_package_destination_path: /var/www/html/vhosts/{{ webserver_apache_document_vhost_domain }}/htdocs
+    wordpress_package_destination_path_checker: /var/www/html/vhosts/{{ webserver_apache_document_vhost_domain }}/htdocs/index.php
+    wordpress_package_name_with_extension: wordpress.zip
+    wordpress_unpackage_normal: true
+    wordpress_unpackage_zip: true
+
+- hosts: wordpress_db
+  roles:
+  - mysqlfamily
+  sudo: true
+  vars:
+    mysqlfamily_oracle_server_enable: true
+    mysqlfamily_oracle_client_enable: true
+    mysql_root_password: letmein
+    mysqlfamily_database_users_list:
+    - { user: "wp_user", db: "wp_db", host: "localhost", password: "wppassword", priv: "wp_db.*:ALL" }
+    - { user: "wp_user", db: "wp_db", host: "192.168.56.163", password: "wppassword", priv: "wp_db.*:ALL" }
+    - { user: "wp_user", db: "wp_db", host: "192.168.56.164", password: "wppassword", priv: "wp_db.*:ALL" }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#   - name: Install Apache
+#     apt: pkg=apache2 update_cache=true state=installed
+#   - name: Install bunch of php packages
+#     apt: pkg={{ item }} update_cache=true state=installed
+#     with_items:
+#        - php5
+#        - php5-cli
+#        - php5-curl
+#        - php5-mcrypt
+#        - php5-mysql
+#        - php5-gd
+#   - name: Install MySQL Client
+#     apt: pkg=mysql-client update_cache=true state=installed
+#   - name: Checking if file already exists
+#     stat: path=/home/vagrant/wordpress-latest.zip
+#     register: wordpress_file
+#   - name: Download wordpress latest zip
+#     get_url: dest=/home/vagrant/wordpress-latest.zip url=https://wordpress.org/latest.zip
+#     when: wordpress_file.stat.exists != true
+#   - name: Install Unzip package
+#     apt: pkg=unzip update_cache=true state=installed
+#   - name: Deploying wordpress
+#     unarchive:
+#       src="/home/vagrant/wordpress-latest.zip"
+#       dest={{ wordpress_dest_path }}
+#       copy=no
+#       creates={{ wordpress_dest_path_checker }}
+#       owner=www-data
+#       group=www-data
+#       mode=755
+#   sudo: true
+#
+# - hosts: dbservers
+#   tasks:
+#   - name: Install MySQL Components
+#     apt: pkg={{ item }} update_cache=true state=installed
+#     with_items:
+#     - mysql-client
+#     - mysql-server
+#     - python-mysqldb
+#   - name: delete anonymous mysql user
+#     mysql_user: name="" state=absent
+#     register: command_result
+#     ignore_errors: true
+#   - name: install Mysql Root user
+#     mysql_user: name=root  host={{ item }}  password={{ mysql_root_password }} login_user=root login_password=
+#     when: command_result|success
+#     with_items:
+#     - 127.0.0.1
+#     - ::1
+#     - localhost
+#   - name: install Mysql wordpress database
+#     mysql_db: name=wp_db  state=present login_user=root login_password={{ mysql_root_password }}
+#   - name: install Mysql wordpress user
+#     mysql_user: name=wp_user priv=wp_db.*:ALL host={{ item }}  password={{ mysql_wp_password }} login_user=root login_password={{ mysql_root_password }}
+#     with_items:
+#     - localhost
+#     - 172.24.14.100
+#   - name: Openning our Mysql to the world
+#     replace:
+#       dest=/etc/mysql/my.cnf
+#       regexp="^bind-address.*"
+#       replace="#bind-address= 127.0.0.1"
+#       backup=yes
+#     notify:
+#     - Restart_Mysql
+#   vars_prompt:
+#   - name: "mysql_root_password"
+#     prompt: "Please enter the root password"
+#     private: yes
+#   handlers:
+#   - name: Restart_Mysql
+#     service: name=mysql state=restarted
+#   sudo: true

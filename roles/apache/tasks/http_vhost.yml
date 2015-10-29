@@ -1,0 +1,17 @@
+---
+- name: Creating Document virtualhost files
+  template:
+    src=http_vhost.conf.j2
+    dest=/etc/apache2/sites-available/{{ webserver_apache_document_vhost_domain|default("localhost") }}.conf
+    mode=0644
+    # validate='/usr/sbin/apache2ctl -f %s -t'
+  # with_items: webserver_apache_document_vhost_list|default()
+
+- name: Creating VirtualHost DocumentRoot
+  file:
+    path=/var/www/html/vhosts/{{ webserver_apache_document_vhost_domain|default("localhost") }}/htdocs
+    state=directory
+    recurse=yes
+    mode=0755
+    owner=www-data
+    group=www-data

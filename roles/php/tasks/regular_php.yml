@@ -1,0 +1,7 @@
+---
+- name: Installing php
+  apt:
+    name=php5
+    update_cache=yes
+    state=present
+    

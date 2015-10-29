@@ -1,0 +1,10 @@
+---
+# tasks file for mysqlfamily
+- include: oracle_mysql.yml
+  when: oracle_mysql_enable|default(true)
+
+- include: percona_mysql.yml
+  when: percona_mysql_enable|default(false)
+
+- include: mariadb_mysql.yml
+  when: mariadb_mysql_enable|default(false)

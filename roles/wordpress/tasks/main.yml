@@ -1,0 +1,39 @@
+---
+# tasks file for wordpress
+- name: Installing utility packages
+  apt:
+    name={{ item }}
+    update_cache=yes
+    state=present
+  with_items: wordpress_utilities_list|default()
+
+- name: Getting wordpress package to install
+  get_url:
+    url={{wordpress_package_url}}
+    dest=/tmp/{{ wordpress_package_name_with_extension }}
+
+- name: Unarchive wordpress package
+  unarchive:
+    src=/tmp/{{ wordpress_package_name_with_extension }}
+    dest={{ wordpress_package_destination_path }}
+    copy=no
+    creates={{ wordpress_package_destination_path_checker }}
+    owner=www-data
+    group=www-data
+  when: wordpress_unpackage_normal
+
+- name: Checking if worpress folder exists
+  stat: path="{{ wordpress_package_destination_path }}/wordpress"
+  register: wp_folder
+
+- debug: var=wp_folder
+
+- name: Moving Files from worpress folder
+  shell:  cp -R {{ wordpress_package_destination_path }}/wordpress/* {{ wordpress_package_destination_path }}
+  when: wp_folder.stat.exists == true
+
+- name: Cleaning Document Root
+  file:
+    path="{{ wordpress_package_destination_path }}/wordpress"
+    state=absent
+  when: wp_folder.stat.exists == true
