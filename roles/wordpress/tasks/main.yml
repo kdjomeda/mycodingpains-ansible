@@ -26,8 +26,6 @@
   stat: path="{{ wordpress_package_destination_path }}/wordpress"
   register: wp_folder
 
-- debug: var=wp_folder
-
 - name: Moving Files from worpress folder
   shell:  cp -R {{ wordpress_package_destination_path }}/wordpress/* {{ wordpress_package_destination_path }}
   when: wp_folder.stat.exists == true
